@@ -1,0 +1,11 @@
+USE daily_report;
+
+CREATE TABLE IF NOT EXISTS reports (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    report_date DATE NOT NULL,
+    department VARCHAR(32) NOT NULL,
+    author VARCHAR(64) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;

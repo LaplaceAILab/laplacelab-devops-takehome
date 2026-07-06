@@ -1,0 +1,53 @@
+services:
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: daily-report-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    restart: always
+
+  app:
+    build: ./app
+    container_name: daily-report-app
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: "3306"
+      MYSQL_USER: report
+      MYSQL_PASSWORD: report_pass_2026
+      MYSQL_DB: daily_report
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    depends_on:
+      - mysql
+      - redis
+    restart: on-failure
+
+  mysql:
+    image: mysql:8.0
+    container_name: daily-report-mysql
+    # 容器环境下适当调小 buffer pool，避免占用过多宿主机内存
+    command: --innodb-buffer-pool-size=64M
+    environment:
+      MYSQL_ROOT_PASSWORD: root_pass_2026
+      MYSQL_DATABASE: daily_report
+      MYSQL_USER: report
+      MYSQL_PASSWORD: report_pass_2026
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: daily-report-redis
+    command: ["redis-server", "/etc/redis/redis.conf"]
+    volumes:
+      - ./redis/redis.conf:/etc/redis/redis.conf:ro
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
