@@ -14,6 +14,8 @@
 
 **场景**：你拿到一个内部小服务"日报服务"（daily-report-service）的代码仓库，基于 Flask + MySQL + Redis，前面挂了一层 Nginx 反向代理。产品同事反馈"服务时好时坏，有时候打不开，有时候很慢"。
 
+**代码仓库**：<https://github.com/LaplaceAILab/laplacelab-devops-takehome>（环境说明与启动方式见仓库 README）
+
 **要做的事**：
 
 1. `docker-compose up` 启动整套环境。
