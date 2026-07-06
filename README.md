@@ -35,6 +35,8 @@ docker-compose up -d --build
 | GET | `/api/summary` | 最近 N 天各部门日报统计 | `curl 'http://localhost:8080/api/summary?days=7'` |
 | POST | `/api/reports` | 提交一条日报 | 见下方 |
 
+> 测试数据覆盖「你首次启动环境那天」往前 180 天，`date` 参数取这个范围内的日期即可查到数据（示例里的日期请自行替换）。
+
 ```bash
 curl -X POST http://localhost:8080/api/reports \
   -H 'Content-Type: application/json' \

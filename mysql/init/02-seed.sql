@@ -3,6 +3,8 @@ USE daily_report;
 
 SET SESSION cte_max_recursion_depth = 200001;
 
+-- 每个日期约 1100 条；用 FLOOR(n/180) 派生部门/作者，
+-- 避免与 MOD(n,180) 的日期取模相关联（5、60 都整除 180，直接 MOD(n,5) 会导致每天只有一个部门）
 INSERT INTO reports (report_date, department, author, title, content, created_at)
 WITH RECURSIVE seq AS (
     SELECT 1 AS n
@@ -11,11 +13,12 @@ WITH RECURSIVE seq AS (
 )
 SELECT
     DATE_SUB(CURDATE(), INTERVAL MOD(n, 180) DAY),
-    ELT(MOD(n, 5) + 1, '研发部', '产品部', '运营部', '市场部', '客服部'),
-    CONCAT('user_', LPAD(MOD(n, 60), 2, '0')),
+    ELT(MOD(FLOOR(n / 180), 5) + 1, '研发部', '产品部', '运营部', '市场部', '客服部'),
+    CONCAT('user_', LPAD(MOD(FLOOR(n / 180), 60), 2, '0')),
     CONCAT('工作日报 ', DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL MOD(n, 180) DAY), '%Y-%m-%d'), ' #', n),
     REPEAT(CONCAT('今日完成事项、进展与风险记录 ', n, '；'), 12),
-    DATE_SUB(NOW(), INTERVAL MOD(n, 259200) MINUTE)
+    TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL MOD(n, 180) DAY),
+              SEC_TO_TIME(9 * 3600 + MOD(n * 37, 9 * 3600)))
 FROM seq;
 
 ANALYZE TABLE reports;
